@@ -1,0 +1,7 @@
+# Check text files out with LF on every platform.
+#
+# Not cosmetic: migrations are checksummed over their exact bytes, and with
+# core.autocrlf on (the Windows default) a checkout would rewrite them with
+# CRLF, change the hash of every already-applied migration, and the runner
+# would refuse to start.
+* text=auto eol=lf

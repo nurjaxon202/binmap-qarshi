@@ -1,0 +1,424 @@
+@import 'tailwindcss';
+
+/* ===========================================================================
+   BinMap Qarshi — design system
+   ---------------------------------------------------------------------------
+   See DESIGN.md. The idea: BinMap is a field survey in progress, and its
+   defining property is honesty about how much it knows. So confidence is
+   encoded the way survey and cadastral drawings encode it — as texture:
+
+     verified      solid fill
+     community     45° hatch
+     needs recheck open fill, dotted edge
+     demonstration cross-hatch, dashed edge
+
+   That is the one place this design is bold. Everything around it stays
+   quiet so it reads.
+   =========================================================================== */
+
+@theme {
+  /* ------------------------------- palette ------------------------------- */
+  --color-ink-900: #14160f;
+  --color-ink-800: #23261c;
+  --color-ink-700: #343829;
+  --color-ink-600: #4d5241;
+  --color-ink-500: #6b7059;
+  --color-ink-400: #8d9279;
+  --color-ink-300: #b0b49d;
+
+  --color-forest-950: #081509;
+  --color-forest-900: #0c2416;
+  --color-forest-800: #10311f;
+  --color-forest-700: #15402a;
+  --color-forest-600: #1d5436;
+  --color-forest-500: #2a6b47;
+
+  --color-moss-700: #425c4b;
+  --color-moss-600: #4e6b57;
+  --color-moss-500: #5e7d68;
+  --color-moss-400: #829c8b;
+  --color-moss-300: #a8bcae;
+  --color-moss-200: #cdd9d0;
+  --color-moss-100: #e6ece7;
+
+  --color-paper-50: #faf7ee;
+  --color-paper-100: #f5f1e4;
+  --color-paper-200: #ede7d6;
+  --color-paper-300: #e9e2cd;
+  --color-paper-400: #d7cdb2;
+
+  --color-lime-600: #93ad22;
+  --color-lime-500: #bcd946;
+  --color-lime-400: #cfe677;
+  --color-lime-200: #e9f2c2;
+
+  /* Problems only — a surveyor's correction ink, not a UI "danger" red. */
+  --color-survey-600: #7d2d1b;
+  --color-survey-500: #9c3a24;
+  --color-survey-200: #f2dfd8;
+
+  --color-amber-600: #8a5f12;
+  --color-amber-500: #a97716;
+  --color-amber-200: #f3e6c8;
+
+  --color-slate-600: #3b5873;
+  --color-slate-500: #4c7093;
+  --color-slate-200: #dde7ef;
+
+  /* ------------------------------ semantics ------------------------------ */
+  --color-canvas: var(--color-paper-100);
+  --color-surface: #fffdf7;
+  --color-sunken: var(--color-paper-200);
+  --color-line: #ddd4bd;
+  --color-line-strong: #c3b899;
+  --color-line-dark: #2a4234;
+
+  /* ----------------------------- typography ------------------------------ */
+  /* One family at two widths. Archivo was drawn for signage, which is the
+     vernacular of public infrastructure; the expanded width is what keeps a
+     headline from reading as a generic product hero. */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  /* Coordinates and distances only, where digits must align between rows. */
+  --font-mono: var(--font-plex-mono), ui-monospace, 'Cascadia Mono', monospace;
+
+  /* ------------------------------- shape --------------------------------- */
+  /* Structural regions are drawn, not carded: small radii on plan-like
+     surfaces, generous radii only on things a thumb touches. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+
+  --shadow-panel: 0 1px 2px rgb(20 22 15 / 0.05), 0 12px 28px -18px rgb(20 22 15 / 0.22);
+  --shadow-raised: 0 2px 4px rgb(20 22 15 / 0.06), 0 24px 48px -24px rgb(20 22 15 / 0.3);
+
+  /* ------------------------------- layout -------------------------------- */
+  --container-shell: 78rem;
+  --gutter-rail: 3.5rem;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===========================================================================
+   Base
+   =========================================================================== */
+
+@layer base {
+  :root {
+    /* Warm paper is the identity; there is no dark variant, so pin control
+       rendering to light rather than letting the OS invert it. */
+    color-scheme: light;
+    --rule: var(--color-line);
+  }
+
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    /* The expanded width axis. Falls back to normal width where the variable
+       font has not loaded, which degrades quietly. */
+    font-stretch: 112%;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  h3,
+  h4 {
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One focus treatment, legible on paper and on forest. */
+  :focus-visible {
+    outline: 2px solid var(--color-forest-600);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  .on-forest :focus-visible {
+    outline-color: var(--color-lime-500);
+  }
+
+  ::selection {
+    background-color: var(--color-lime-200);
+    color: var(--color-forest-900);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Stop iOS zooming when a field takes focus. */
+  @media (max-width: 48rem) {
+    input,
+    textarea,
+    select {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* ===========================================================================
+   Survey textures — the core device
+   ---------------------------------------------------------------------------
+   Each state has its own fill, so the distinction survives greyscale and
+   colour blindness. Sizes are in absolute px so the texture reads the same
+   at any type size.
+   =========================================================================== */
+
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    currentColor 0 1px,
+    transparent 1px 6px
+  );
+  opacity: 0.999; /* isolate from parent opacity collapse */
+}
+
+@utility hatch-cross {
+  background-image:
+    repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(-45deg, currentColor 0 1px, transparent 1px 7px);
+}
+
+/* The plan-sheet ground. Two pitches: a fine 8mm grid and a heavy 40mm one,
+   like a surveyor's sheet. Never behind body text. */
+@utility plan-grid {
+  background-image:
+    linear-gradient(to right, var(--rule) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--rule) 1px, transparent 1px),
+    linear-gradient(to right, var(--rule) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
+  background-size:
+    8.5rem 8.5rem,
+    8.5rem 8.5rem,
+    1.7rem 1.7rem,
+    1.7rem 1.7rem;
+  background-position: -1px -1px;
+}
+
+@utility on-forest {
+  /* Low enough that the grid reads as paper texture rather than as a pattern
+     competing with the type above it. */
+  --rule: color-mix(in oklab, var(--color-moss-400) 15%, transparent);
+  color: var(--color-paper-100);
+}
+
+/* Coordinates, distances, counts — measurements, not labels. */
+@utility numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'zero' 1;
+  letter-spacing: -0.02em;
+}
+
+/* Comparable figures in the body face. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility shell {
+  width: 100%;
+  max-width: var(--container-shell);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  /* Nested so the responsive step stays inside the utility's own layer
+     instead of relying on unlayered CSS winning the cascade. */
+  @media (min-width: 48rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/**
+ * Aligns content to the shell's left edge inside a full-bleed section, so a
+ * hero that lets the map run off the right of the screen still lines its text
+ * up with the header above it. Without this, a bleed layout silently breaks
+ * the page's vertical alignment.
+ */
+/* Measured in cqw, not vw: the scroll container has a scrollbar, so 100vw is
+   wider than the content box and the hero would sit a few pixels right of the
+   header above it. Requires an ancestor with `container-type: inline-size`
+   (the `@container` utility), which the hero section carries. */
+@utility shell-aligned-left {
+  padding-left: 1.25rem;
+
+  @media (min-width: 48rem) {
+    padding-left: max(2.5rem, calc((100cqw - var(--container-shell)) / 2 + 2.5rem));
+  }
+}
+
+@utility shell-aligned-right {
+  padding-right: 1.25rem;
+
+  @media (min-width: 48rem) {
+    padding-right: max(2.5rem, calc((100cqw - var(--container-shell)) / 2 + 2.5rem));
+  }
+}
+
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* The one orchestrated moment: hero markers plotting in sequence, once. */
+@keyframes plot-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility plot-in {
+  animation: plot-in 340ms var(--ease-out-soft) both;
+}
+
+/* ===========================================================================
+   Leaflet
+   ---------------------------------------------------------------------------
+   Leaflet ships its own stylesheet; these rules replace its default chrome so
+   the map reads as part of the product rather than an embedded widget.
+   =========================================================================== */
+
+.leaflet-container {
+  font-family: var(--font-sans);
+  background-color: var(--color-paper-300);
+  isolation: isolate;
+}
+
+.leaflet-container a {
+  color: var(--color-forest-600);
+}
+
+/* Attribution is a condition of using the tiles. Keep it legible. */
+.leaflet-control-attribution {
+  background-color: color-mix(in oklab, var(--color-surface) 90%, transparent) !important;
+  color: var(--color-ink-600) !important;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem !important;
+  padding: 2px 8px !important;
+  border-top-left-radius: var(--radius-sm);
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-forest-600) !important;
+  text-decoration: underline;
+  text-decoration-color: var(--color-moss-300);
+}
+
+.leaflet-bar {
+  border: 1px solid var(--color-line-strong) !important;
+  box-shadow: var(--shadow-panel) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  background-color: var(--color-surface) !important;
+  color: var(--color-ink-800) !important;
+  border-bottom-color: var(--color-line) !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  line-height: 2.25rem !important;
+  font-size: 1.125rem !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--color-paper-200) !important;
+  color: var(--color-forest-700) !important;
+}
+
+/* Below `lg` the nearby-bins sheet takes the bottom 4.25rem of the map, and
+   Leaflet anchors its controls to the viewport corner — which put zoom-out
+   underneath the sheet, where it could not be tapped at all. Lift the whole
+   bottom corner, attribution included, so it sits on the sheet's edge. */
+@media (width < 64rem) {
+  .leaflet-bottom {
+    bottom: 4.25rem !important;
+  }
+}
+
+/* Our markers are plain elements; strip Leaflet's default icon chrome. */
+.binmap-marker {
+  background: transparent;
+  border: none;
+}
+
+.binmap-marker:focus-visible {
+  outline: 2px solid var(--color-forest-700);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Fixed to the map centre while picking a location, so the map moves under
+   the crosshair instead of a pin being dragged around. */
+.binmap-crosshair {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 420;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-raised) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.leaflet-popup-tip {
+  box-shadow: none !important;
+}
